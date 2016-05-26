@@ -966,6 +966,8 @@ theme.initCache = function () {
     $productImages          : $('.product-single__photos'),
     $productImagePhoto      : $('.product-single__photo'),
 
+    $galleryRte              : $('#GalleryRte'),
+
     $indentedRteImages      : $('.rte--indented-images'),
 
     $productGridRows        : $('.collage-grid__row'),
@@ -1003,6 +1005,8 @@ theme.init = function () {
   {% if settings.product_zoom_enable %}
     theme.productImageZoom();
   {% endif %}
+
+  theme.ajaxGallery();
 
   // Functions to run on load so image sizes can be calculated
   theme.cache.$window.on('load', theme.resizeLogo);
@@ -1206,7 +1210,37 @@ theme.productImageZoom = function() {
   });
 };
 
-            
+theme.ajaxGallery = function() {
+  if (!theme.cache.$galleryRte.length) {
+    return;
+  };
+
+  var $galleryImages = $('.rte--gallery-images img');
+
+  $galleryImages.each(function() {
+    var $galleryLink = $(this).parent('a');
+    var $galleryHref = $galleryLink.attr('href');
+    var $galleryItems;
+
+    $.get( $galleryHref, function( data ) {
+      console.log('GET request');
+      $galleryItems = data;
+      console.log($galleryItems);
+      //alert( "Load was performed." );
+    });
+
+    $galleryLink.magnificPopup({
+      // items: [$galleryItems],
+      items: [{ src: '//cdn.shopify.com/s/files/1/0711/7957/files/brendan_1024x1024.jpeg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/darryn_1024x1024.jpeg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/darryn_1024x1024.jpg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/jon_1024x1024.jpeg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/keyfer_1024x1024.jpeg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/peter_1024x1024.jpeg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/ryan_1024x1024.jpg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/stephen_1024x1024.jpeg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/Team_Canada_1024x1024.png', type: 'image' }],
+      gallery: {
+        enabled: true
+      },
+
+    });
+  });
+  console.log('Found a gallery RTE');
+}
+
 theme.collectionParallax = function () {
   if (!theme.cache.$collectionImage.length) {
     return;

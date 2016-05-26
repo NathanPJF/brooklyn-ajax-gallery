@@ -1,0 +1,17 @@
+{% layout none %}
+{% assign img_data = page.content | split: '<img src="' %}
+
+{% for data in img_data %}
+  {% if forloop.first %}
+    {{ continue }}
+  {% else %}
+    {
+      {% assign src = data | split: '"' | first %}
+      {% assign alt = data | split: 'alt="' %}
+      src: '{{ src | split: '?' | first | replace: '_large.', '_1024x1024.'}}',
+      type: 'image'
+      {% comment %}alt: '{{ alt[1] | remove: '">' }}'{% endcomment %}
+    }
+    {% unless forloop.last %},{% endunless%}
+  {% endif %}
+{% endfor %}
