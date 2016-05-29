@@ -18,7 +18,6 @@
         {% endfor %}
         {% assign alt = data | split: 'alt="' %}
         {% assign title = alt[1] | split: '"' | first %}
-        {% comment %}alt: '{{ alt[1] | remove: '">' }}'{% endcomment %}
 
         "src": "{{ src }}",
         "title": "{{ title }}"

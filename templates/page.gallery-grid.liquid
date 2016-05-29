@@ -9,25 +9,11 @@
 
     <div class="grid-uniform">
       <div class="grid__item">
-        <div class="rte rte--nomargin gallery__container">
+        <div class="rte rte--nomargin rte--grid-gallery grid-uniform">
           {{ page.content }}
         </div>
       </div>
     </div>
-
-    <script>
-    $(document).ready(function() {
-      $('.gallery__container').addClass('grid-uniform');
-      var $galleryImgs = $('.gallery__container img');
-
-      $galleryImgs.each(function() {
-        $(this).wrap('<div class="grid__item large--one-third medium--one-half gallery__image-wrapper"><div class="grid-product__image-wrapper"><a class="grid-product__image-link"></a></div></div>');
-      });
-
-      $('.gallery__image-wrapper').css('height', 'auto').equalHeights();
-
-    });
-    </script>
 
   </div>
 </div>

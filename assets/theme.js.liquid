@@ -968,6 +968,7 @@ theme.initCache = function () {
 
     $indentedRteImages      : $('.rte--indented-images'),
     $galleryRteImages       : $('.rte--gallery-images'),
+    $gridGalleryRte         : $('.rte--grid-gallery'),
 
     $productGridRows        : $('.collage-grid__row'),
     $productGridItem        : $('.grid__product'),
@@ -975,6 +976,7 @@ theme.initCache = function () {
 
     // Equal height elements
     $productGridImages      : $('.grid-uniform .grid-product__image-wrapper'),
+    galleryGridImages       : '.grid-uniform .grid-gallery__image-wrapper',
 
     $productSingleWrapper   : $('.product-single'),
     $productSingleMeta      : $('.product-single__meta'),
@@ -994,7 +996,7 @@ theme.init = function () {
   {% if settings.collection_products_grid == 'collage' %}
     theme.initCollageGrid();
   {% elsif settings.collection_products_grid == 'grid' %}
-    theme.equalHeights();
+    theme.equalHeights('collection');
   {% endif %}
   theme.collectionBackButton();
   theme.hideSingleSelectors();
@@ -1006,6 +1008,8 @@ theme.init = function () {
   {% endif %}
 
   theme.ajaxGallery();
+  theme.gridGallery();
+  theme.equalHeights('gallery');
 
   // Functions to run on load so image sizes can be calculated
   theme.cache.$window.on('load', theme.resizeLogo);
@@ -1210,7 +1214,7 @@ theme.productImageZoom = function() {
 };
 
 theme.ajaxGallery = function() {
-  if (!theme.cache.$indentedRteImages.length) {
+  if (!theme.cache.$galleryRteImages.length) {
     return;
   };
 
@@ -1229,7 +1233,7 @@ theme.ajaxGallery = function() {
       closeOnContentClick: true,
       tClose: '{{ "products.zoom.close" | t }}',
       removalDelay: 500,
-      mainClass: 'gallery__container',
+      mainClass: 'lightbox-gallery__container',
       gallery: {
         enabled:true,
         navigateByImgClick: false,
@@ -1242,7 +1246,7 @@ theme.ajaxGallery = function() {
   }
 
   theme.cache.$galleryRteImages.find('img').each(function() {
-
+    console.log('heere');
     var $galleryLink = $(this).parent('a');
     var galleryHref = $galleryLink.attr('href');
     var galleryItems;
@@ -1264,6 +1268,51 @@ theme.ajaxGallery = function() {
       // Have to do "html". dataType: "json" returns Shopify's Page object
       dataType: "html"
     });
+  });
+}
+
+theme.gridGallery = function () {
+  if (!theme.cache.$gridGalleryRte.length) {
+    return;
+  }
+
+  function lightboxInfo(src, newSize, alt) {
+    var info = {};
+    var match = src.match(/_(1024x1024|2048x2048|pico|icon|thumb|small|compact|medium|large|grande)\./g);
+    info.url = src.replace(match[0],newSize);
+    info.title = alt;
+    return info;
+  }
+
+  theme.cache.$gridGalleryRte.find('img').each(function() {
+    $el = $(this);
+
+    var lightbox = lightboxInfo($el.attr('src'),'_1024x1024.', $el.attr('alt'));
+
+    $el
+      .addClass('grid-gallery__image')
+      .wrap('<div class="grid__item large--one-third medium--one-half grid-gallery__wrapper"><div class="grid-gallery__image-wrapper"><a href="'+lightbox.url+'" title="'+lightbox.title+'" class="grid-gallery__image-link"></a></div></div>');
+  });
+
+  $('.grid-gallery__image-link').magnificPopup({
+    type: 'image',
+    mainClass: 'mfp-fade',
+    closeOnBgClick: true,
+    closeBtnInside: false,
+    closeOnContentClick: true,
+    tClose: '{{ "products.zoom.close" | t }}',
+    removalDelay: 500,
+    mainClass: 'lightbox-gallery__container',
+    image: {
+      titleSrc: 'title',
+    },
+    gallery: {
+      enabled:true,
+      navigateByImgClick: false,
+      arrowMarkup: '<button title="%title%" type="button" class="mfp-arrow mfp-arrow-%dir%"><span class="mfp-chevron mfp-chevron-%dir%"></span></button>',
+      tPrev: '{{ "products.zoom.prev" | t }}',
+      tNext: '{{ "products.zoom.next" | t }}'
+    }
   });
 }
 
@@ -1355,7 +1404,7 @@ theme.clearCollageGridHeights = function () {
   theme.cache.$productGridPhotosLarge.removeAttr('style');
 }
 
-theme.equalHeights = function () {
+theme.equalHeights = function (elements) {
   theme.cache.$window.on('load', resizeElements());
 
   theme.cache.$window.on('resize',
@@ -1365,7 +1414,13 @@ theme.equalHeights = function () {
   );
 
   function resizeElements() {
-    theme.cache.$productGridImages.css('height', 'auto').equalHeights();
+    if (elements === 'collection') {
+      theme.cache.$productGridImages.css('height', 'auto').equalHeights();
+    }
+    if (elements === 'gallery') {
+      $(document).find(theme.cache.galleryGridImages).css('height', 'auto').equalHeights();
+    }
+
   }
 };
 
