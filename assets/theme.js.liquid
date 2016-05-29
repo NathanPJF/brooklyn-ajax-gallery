@@ -966,9 +966,8 @@ theme.initCache = function () {
     $productImages          : $('.product-single__photos'),
     $productImagePhoto      : $('.product-single__photo'),
 
-    $galleryRte              : $('#GalleryRte'),
-
     $indentedRteImages      : $('.rte--indented-images'),
+    $galleryRteImages       : $('.rte--gallery-images'),
 
     $productGridRows        : $('.collage-grid__row'),
     $productGridItem        : $('.grid__product'),
@@ -1211,34 +1210,61 @@ theme.productImageZoom = function() {
 };
 
 theme.ajaxGallery = function() {
-  if (!theme.cache.$galleryRte.length) {
+  if (!theme.cache.$indentedRteImages.length) {
     return;
   };
 
-  var $galleryImages = $('.rte--gallery-images img');
+  function galleryPopup($link, gallery_items, gallery_size) {
 
-  $galleryImages.each(function() {
-    var $galleryLink = $(this).parent('a');
-    var $galleryHref = $galleryLink.attr('href');
-    var $galleryItems;
+    // If there are no images,
+    if (gallery_size < 1) {
+      return;
+    }
 
-    $.get( $galleryHref, function( data ) {
-      console.log('GET request');
-      $galleryItems = data;
-      console.log($galleryItems);
-      //alert( "Load was performed." );
-    });
-
-    $galleryLink.magnificPopup({
-      // items: [$galleryItems],
-      items: [{ src: '//cdn.shopify.com/s/files/1/0711/7957/files/brendan_1024x1024.jpeg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/darryn_1024x1024.jpeg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/darryn_1024x1024.jpg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/jon_1024x1024.jpeg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/keyfer_1024x1024.jpeg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/peter_1024x1024.jpeg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/ryan_1024x1024.jpg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/stephen_1024x1024.jpeg', type: 'image' } , { src: '//cdn.shopify.com/s/files/1/0711/7957/files/Team_Canada_1024x1024.png', type: 'image' }],
+    $link.magnificPopup({
+      items: gallery_items,
+      mainClass: 'mfp-fade',
+      closeOnBgClick: true,
+      closeBtnInside: false,
+      closeOnContentClick: true,
+      tClose: '{{ "products.zoom.close" | t }}',
+      removalDelay: 500,
+      mainClass: 'gallery__container',
       gallery: {
-        enabled: true
+        enabled:true,
+        navigateByImgClick: false,
+        arrowMarkup: '<button title="%title%" type="button" class="mfp-arrow mfp-arrow-%dir%"><span class="mfp-chevron mfp-chevron-%dir%"></span></button>',
+        tPrev: '{{ "products.zoom.prev" | t }}',
+        tNext: '{{ "products.zoom.next" | t }}'
       },
+      type: 'image' // default type for items, but can be set individually
+    });
+  }
 
+  theme.cache.$galleryRteImages.find('img').each(function() {
+
+    var $galleryLink = $(this).parent('a');
+    var galleryHref = $galleryLink.attr('href');
+    var galleryItems;
+
+    // If the image is not pointing to a page on the site, exit iteration
+    if (galleryHref.indexOf(window.location.hostname + '/pages/') == -1 ) {
+      return;
+    };
+
+    $.ajax({
+      async: 'false',
+      type: 'GET',
+      url: galleryHref + '?view=json',
+      success: function(data) {
+        galleryData = data.trim();
+        galleryJSON = JSON.parse(galleryData);
+        galleryPopup($galleryLink, galleryJSON.gallery_array, galleryJSON.gallery_size);
+      },
+      // Have to do "html". dataType: "json" returns Shopify's Page object
+      dataType: "html"
     });
   });
-  console.log('Found a gallery RTE');
 }
 
 theme.collectionParallax = function () {

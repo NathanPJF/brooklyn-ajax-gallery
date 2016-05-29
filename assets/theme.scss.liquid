@@ -1642,7 +1642,7 @@ $shareCountBg: $colorBody;
   margin-right: -2px;
   font-size: 14px;
   line-height: $shareButtonHeight - 2;
-  
+
   @if $passwordPageUseBgImage {
     color: #ffffff;
   } @else {
@@ -3130,6 +3130,25 @@ button.mfp-arrow {
   margin-bottom: -($gutter / 2);
 }
 
+/*================ Templates | Gallery page ================*/
+
+.gallery__container {
+  &.mfp-bg {
+    opacity: 0.95;
+  }
+
+  .mfp-img {
+    background-color: rgba(0,0,0,0);
+  }
+  .mfp-title {
+    color: $colorTextBody;
+  }
+  .mfp-counter {
+    display: block;
+    color: $colorTextBody;
+  }
+}
+
 /*============= Templates | Password page =============*/
 
 .template-password {
@@ -3374,5 +3393,3 @@ button.mfp-arrow {
     @include visuallyHidden;
   }
 }
-
-

@@ -1,0 +1,36 @@
+{% layout none %}
+{% comment %} For use with magnificPopup and the theme.ajaxGallery() function {% endcomment %}
+{% assign img_params = 'pico.,icon.,thumb.,small.,compact.,medium.,large.,grande.' | split: ',' %}
+{% assign img_data = page.content | split: '<img src="' %}
+
+{% capture jsondata %}
+{
+  "gallery_size" : {{ img_data.size | minus: 1 }},
+  "gallery_array" : [
+    {% for data in img_data %}
+      {% if forloop.first %}
+        {{ continue }}
+      {% else %}
+      {
+        {% assign src = data | split: '"' | first %}
+        {% for param in img_params %}
+          {% assign src = src | replace: param, '1024x1024.' %}
+        {% endfor %}
+        {% assign alt = data | split: 'alt="' %}
+        {% assign title = alt[1] | split: '"' | first %}
+        {% comment %}alt: '{{ alt[1] | remove: '">' }}'{% endcomment %}
+
+        "src": "{{ src }}",
+        "title": "{{ title }}"
+      }
+        {% unless forloop.last %},{% endunless%}
+      {% endif %}
+    {% endfor %}
+    ]
+}
+{% endcapture %}
+
+{{ jsondata | strip_newlines }}
+{% comment %}
+<div id="jsonData">{{ jsondata | strip_newlines | strip }}</div>
+{% endcomment %}
