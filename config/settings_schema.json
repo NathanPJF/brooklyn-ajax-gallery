@@ -1396,6 +1396,54 @@
     ]
   },
   {
+    "name": "Gallery page",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "This theme supports two types of gallaries: An ajax gallery and a grid gallery.  Instructions for both can be found below."
+      },
+      {
+        "type": "header",
+        "content": "Ajax gallery",
+        "info": "A single image that will load images into a gallery using ajax."
+      },
+      {
+        "type": "paragraph",
+        "content": "Pages using the ajax gallery must be using the page.ajax-gallery template.  Any image in the RTE linked to a page on the website will load all the images of that page in a lightbox gallery."
+      },
+      {
+        "type": "paragraph",
+        "content": "The page.ajax-gallery template can support multiple galleries.  Just link each image in the RTE separately."
+      },
+      {
+        "type": "header",
+        "content": "Grid gallery",
+        "info": "Displays images in a uniform grid layout."
+      },
+      {
+        "type": "paragraph",
+        "content": "Pages using the grid gallery must be using the page.grid-gallery template.  Place images in the RTE one after the other and they will be aligned on page load."
+      },
+      {
+        "type": "checkbox",
+        "id": "crop_grid_gallery",
+        "label": "Crop images in grid gallery",
+        "info": "Images will be cropped to cover the alloted grid space."
+      },
+      {
+       "type": "select",
+       "id": "crop_aspect_ratio",
+       "options": [
+          { "value": "100%", "label": "1:1 (Square)"},
+          { "value": "75%", "label": "4:3"},
+          { "value": "56.5%", "label": "16:9"}
+       ],
+       "label": "Cropping aspect ratio",
+       "info": "Only applied if you've chosen to crop images in the grid gallery."
+      }
+    ]
+  },
+  {
     "name": "Collection page",
     "settings": [
       {

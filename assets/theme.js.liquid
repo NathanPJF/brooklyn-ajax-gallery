@@ -967,6 +967,8 @@ theme.initCache = function () {
     $productImagePhoto      : $('.product-single__photo'),
 
     $indentedRteImages      : $('.rte--indented-images'),
+    $galleryRteImages       : $('.rte--ajax-gallery-images'),
+    $gridGalleryRte         : $('.rte--grid-gallery'),
 
     $productGridRows        : $('.collage-grid__row'),
     $productGridItem        : $('.grid__product'),
@@ -974,6 +976,8 @@ theme.initCache = function () {
 
     // Equal height elements
     $productGridImages      : $('.grid-uniform .grid-product__image-wrapper'),
+    galleryGridImages       : '.grid-uniform .grid-gallery__image-wrapper',
+    galleryGridImagesCrop   : '.grid-gallery__image-wrapper--crop',
 
     $productSingleWrapper   : $('.product-single'),
     $productSingleMeta      : $('.product-single__meta'),
@@ -993,7 +997,7 @@ theme.init = function () {
   {% if settings.collection_products_grid == 'collage' %}
     theme.initCollageGrid();
   {% elsif settings.collection_products_grid == 'grid' %}
-    theme.equalHeights();
+    theme.equalHeights('collection');
   {% endif %}
   theme.collectionBackButton();
   theme.hideSingleSelectors();
@@ -1003,6 +1007,10 @@ theme.init = function () {
   {% if settings.product_zoom_enable %}
     theme.productImageZoom();
   {% endif %}
+
+  theme.ajaxGallery();
+  theme.gridGallery();
+  theme.equalHeights('gallery');
 
   // Functions to run on load so image sizes can be calculated
   theme.cache.$window.on('load', theme.resizeLogo);
@@ -1206,7 +1214,127 @@ theme.productImageZoom = function() {
   });
 };
 
-            
+theme.ajaxGallery = function() {
+  if (!theme.cache.$galleryRteImages.length) {
+    return;
+  };
+
+  function galleryPopup($link, gallery_items, gallery_size) {
+
+    // If there are no images,
+    if (gallery_size && gallery_size < 0) {
+      return;
+    }
+
+    $link.magnificPopup({
+      items: gallery_items,
+      mainClass: 'mfp-fade',
+      closeOnBgClick: true,
+      closeBtnInside: false,
+      closeOnContentClick: true,
+      tClose: '{{ "products.zoom.close" | t }}',
+      removalDelay: 500,
+      mainClass: 'lightbox-gallery__container',
+      gallery: {
+        enabled:true,
+        navigateByImgClick: false,
+        arrowMarkup: '<button title="%title%" type="button" class="mfp-arrow mfp-arrow-%dir%"><span class="mfp-chevron mfp-chevron-%dir%"></span></button>',
+        tPrev: '{{ "products.zoom.prev" | t }}',
+        tNext: '{{ "products.zoom.next" | t }}'
+      },
+      type: 'image' // default type for items, but can be set individually
+    });
+  }
+
+  theme.cache.$galleryRteImages.find('img').each(function() {
+
+    var $galleryLink = $(this).parent('a');
+    var galleryHref = $galleryLink.attr('href').replace('http://','https://');
+    var galleryItems;
+
+    // If the image is not pointing to a page on the site, exit iteration
+    if (galleryHref.indexOf(window.location.hostname + '/pages/') == -1 ) {
+      return;
+    };
+
+    $.ajax({
+      async: 'false',
+      type: 'GET',
+      url: galleryHref + '?view=json',
+      success: function(data) {
+        galleryData = data.trim();
+        galleryJSON = JSON.parse(galleryData);
+        galleryPopup($galleryLink, galleryJSON.gallery_array, galleryJSON.gallery_size);
+      },
+      // Have to do "html". dataType: "json" returns Shopify's Page object
+      dataType: "html"
+    });
+  });
+}
+
+theme.gridGallery = function () {
+  if (!theme.cache.$gridGalleryRte.length) {
+    return;
+  }
+  
+  var cropEnabled = {{ settings.crop_grid_gallery }};
+  var classes = {
+    gridImage : 'grid-gallery__image',
+    imageWrapper : 'grid-gallery__image-wrapper',
+    imageLink : 'grid-gallery__image-link'
+  }
+
+  if (cropEnabled) {
+    classes.gridImage += ' grid-gallery__image--crop';
+    classes.imageWrapper += ' grid-gallery__image-wrapper--crop';
+    classes.imageLink += ' grid-gallery__image-link--crop';
+  }
+
+  function lightboxInfo(src, newSize, alt) {
+    var info = {};
+    var match = src.match(/_(1024x1024|2048x2048|pico|icon|thumb|small|compact|medium|large|grande)\./g);
+    info.url = src.replace(match[0],newSize);
+    info.title = alt;
+    return info;
+  }
+
+  theme.cache.$gridGalleryRte.find('img').each(function() {
+    $el = $(this);
+
+    var lightbox = lightboxInfo($el.attr('src'),'_1024x1024.', $el.attr('alt'));
+    var wrapHtml = '<div class="grid__item large--one-third medium--one-half grid-gallery__wrapper">';
+        wrapHtml += '<div class="'+classes.imageWrapper+'">';
+        wrapHtml += '<a href="'+lightbox.url+'" title="'+lightbox.title+'" class="'+classes.imageLink+'"></a>';
+        wrapHtml += '</div></div>';
+    $el
+      .addClass(classes.gridImage)
+      .wrap(wrapHtml);
+  });
+
+  $('.grid-gallery__image-link').magnificPopup({
+    type: 'image',
+    mainClass: 'mfp-fade',
+    closeOnBgClick: true,
+    closeBtnInside: false,
+    closeOnContentClick: true,
+    tClose: '{{ "products.zoom.close" | t }}',
+    removalDelay: 500,
+    mainClass: 'lightbox-gallery__container',
+    image: {
+      titleSrc: 'title',
+    },
+    gallery: {
+      enabled:true,
+      navigateByImgClick: false,
+      arrowMarkup: '<button title="%title%" type="button" class="mfp-arrow mfp-arrow-%dir%"><span class="mfp-chevron mfp-chevron-%dir%"></span></button>',
+      tPrev: '{{ "products.zoom.prev" | t }}',
+      tNext: '{{ "products.zoom.next" | t }}'
+    }
+  });
+  
+  theme.cache.$gridGalleryRte.removeClass('js-hidden');
+}
+
 theme.collectionParallax = function () {
   if (!theme.cache.$collectionImage.length) {
     return;
@@ -1295,7 +1423,7 @@ theme.clearCollageGridHeights = function () {
   theme.cache.$productGridPhotosLarge.removeAttr('style');
 }
 
-theme.equalHeights = function () {
+theme.equalHeights = function (elements) {
   theme.cache.$window.on('load', resizeElements());
 
   theme.cache.$window.on('resize',
@@ -1305,7 +1433,13 @@ theme.equalHeights = function () {
   );
 
   function resizeElements() {
-    theme.cache.$productGridImages.css('height', 'auto').equalHeights();
+    if (elements === 'collection') {
+      theme.cache.$productGridImages.css('height', 'auto').equalHeights();
+    }
+    if (elements === 'gallery' && !{{ settings.crop_grid_gallery }}) {
+      $(document).find(theme.cache.galleryGridImages).css('height', 'auto').equalHeights();
+    }
+
   }
 };
 

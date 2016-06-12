@@ -315,6 +315,9 @@ $collectionCollageRowHeightFull: 450px;
 $collectionCollageRowHeightLarge: 310px;
 $collectionCollageRowHeightSmall: 280px;
 
+// Grid gallery page 
+$gridAspectRatio : {{ settings.crop_aspect_ratio | default: 100% }};
+
 // Password page
 $passwordPageUseBgImage: true;
 
@@ -876,6 +879,15 @@ html:not(.lt-ie9) {
       }
     }
   }
+}
+
+/* *======================= Helper classes ============================= */
+.supports-js {
+  
+  .js-hidden {
+    visibility: hidden;
+  }
+  
 }
 
 /*================ Partials | Theme typography overrides ================*/
@@ -1642,7 +1654,7 @@ $shareCountBg: $colorBody;
   margin-right: -2px;
   font-size: 14px;
   line-height: $shareButtonHeight - 2;
-  
+
   @if $passwordPageUseBgImage {
     color: #ffffff;
   } @else {
@@ -3130,6 +3142,87 @@ button.mfp-arrow {
   margin-bottom: -($gutter / 2);
 }
 
+/*================ Templates | Gallery page ================*/
+
+.lightbox-gallery__container {
+  &.mfp-bg {
+    opacity: 0.95;
+  }
+
+  .mfp-img {
+    background-color: rgba(0,0,0,0);
+  }
+  .mfp-title {
+    color: $colorTextBody;
+  }
+  .mfp-counter {
+    display: block;
+    color: $colorTextBody;
+  }
+}
+
+.grid-gallery__wrapper {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.grid-gallery__image-wrapper  {
+  position: relative;
+  width: 100%;  
+
+  .grid-uniform & {
+    display: table;
+    table-layout: fixed;
+  }
+}
+
+.grid-gallery__image-wrapper--crop {
+  padding-bottom: $gridAspectRatio;
+  position: relative;
+}
+
+.grid-gallery__image-link {
+  position: relative;
+  display: block;
+  width: 100%;
+  background-color: $colorProductBackground;
+  @include transition(opacity 0.4s ease-out);
+
+  &:hover,
+  &:focus {
+    opacity: 0.9;
+    @include transition(opacity 0.15s ease-in);
+
+    /*================ Remove hover in IE8 and below ================*/
+    .lt-ie9 & {
+      @include transform('none');
+    }
+  }
+
+  .grid-uniform & {
+    display: table-cell;
+    vertical-align: middle;
+    overflow: hidden;
+  }
+}
+
+.grid-gallery__image-link--crop {
+  height: 100%;
+  position: absolute;
+}
+
+.grid-gallery__image {
+  display: block;
+  margin: 0 auto;
+}
+
+.grid-gallery__image--crop {
+  object-fit: cover;
+  object-position: 50% 50%;
+  width: 100%;
+  height: 100%;
+}
+
 /*============= Templates | Password page =============*/
 
 .template-password {
@@ -3374,5 +3467,3 @@ button.mfp-arrow {
     @include visuallyHidden;
   }
 }
-
-
