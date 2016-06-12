@@ -1222,7 +1222,7 @@ theme.ajaxGallery = function() {
   function galleryPopup($link, gallery_items, gallery_size) {
 
     // If there are no images,
-    if (gallery_size < 1) {
+    if (gallery_size && gallery_size < 0) {
       return;
     }
 
@@ -1249,7 +1249,7 @@ theme.ajaxGallery = function() {
   theme.cache.$galleryRteImages.find('img').each(function() {
 
     var $galleryLink = $(this).parent('a');
-    var galleryHref = $galleryLink.attr('href');
+    var galleryHref = $galleryLink.attr('href').replace('http://','https://');
     var galleryItems;
 
     // If the image is not pointing to a page on the site, exit iteration
