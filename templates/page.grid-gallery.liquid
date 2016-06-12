@@ -1,4 +1,4 @@
-<!-- /templates/page.gallery.liquid -->
+<!-- /templates/page.gallery-grid.liquid -->
 <div class="grid">
   <div class="grid__item large--five-sixths push--large--one-twelfth">
 
@@ -7,9 +7,9 @@
       <hr class="hr--small">
     </header>
 
-    <div class="grid">
-      <div class="grid__item large--four-fifths push--large--one-tenth">
-        <div class="rte rte--nomargin rte--gallery-images">
+    <div class="grid-uniform">
+      <div class="grid__item">
+        <div class="rte rte--nomargin rte--grid-gallery grid-uniform js-hidden">
           {{ page.content }}
         </div>
       </div>

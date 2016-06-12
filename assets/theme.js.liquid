@@ -967,7 +967,7 @@ theme.initCache = function () {
     $productImagePhoto      : $('.product-single__photo'),
 
     $indentedRteImages      : $('.rte--indented-images'),
-    $galleryRteImages       : $('.rte--gallery-images'),
+    $galleryRteImages       : $('.rte--ajax-gallery-images'),
     $gridGalleryRte         : $('.rte--grid-gallery'),
 
     $productGridRows        : $('.collage-grid__row'),
@@ -977,6 +977,7 @@ theme.initCache = function () {
     // Equal height elements
     $productGridImages      : $('.grid-uniform .grid-product__image-wrapper'),
     galleryGridImages       : '.grid-uniform .grid-gallery__image-wrapper',
+    galleryGridImagesCrop   : '.grid-gallery__image-wrapper--crop',
 
     $productSingleWrapper   : $('.product-single'),
     $productSingleMeta      : $('.product-single__meta'),
@@ -1246,7 +1247,7 @@ theme.ajaxGallery = function() {
   }
 
   theme.cache.$galleryRteImages.find('img').each(function() {
-    console.log('heere');
+
     var $galleryLink = $(this).parent('a');
     var galleryHref = $galleryLink.attr('href');
     var galleryItems;
@@ -1275,6 +1276,19 @@ theme.gridGallery = function () {
   if (!theme.cache.$gridGalleryRte.length) {
     return;
   }
+  
+  var cropEnabled = {{ settings.crop_grid_gallery }};
+  var classes = {
+    gridImage : 'grid-gallery__image',
+    imageWrapper : 'grid-gallery__image-wrapper',
+    imageLink : 'grid-gallery__image-link'
+  }
+
+  if (cropEnabled) {
+    classes.gridImage += ' grid-gallery__image--crop';
+    classes.imageWrapper += ' grid-gallery__image-wrapper--crop';
+    classes.imageLink += ' grid-gallery__image-link--crop';
+  }
 
   function lightboxInfo(src, newSize, alt) {
     var info = {};
@@ -1288,10 +1302,13 @@ theme.gridGallery = function () {
     $el = $(this);
 
     var lightbox = lightboxInfo($el.attr('src'),'_1024x1024.', $el.attr('alt'));
-
+    var wrapHtml = '<div class="grid__item large--one-third medium--one-half grid-gallery__wrapper">';
+        wrapHtml += '<div class="'+classes.imageWrapper+'">';
+        wrapHtml += '<a href="'+lightbox.url+'" title="'+lightbox.title+'" class="'+classes.imageLink+'"></a>';
+        wrapHtml += '</div></div>';
     $el
-      .addClass('grid-gallery__image')
-      .wrap('<div class="grid__item large--one-third medium--one-half grid-gallery__wrapper"><div class="grid-gallery__image-wrapper"><a href="'+lightbox.url+'" title="'+lightbox.title+'" class="grid-gallery__image-link"></a></div></div>');
+      .addClass(classes.gridImage)
+      .wrap(wrapHtml);
   });
 
   $('.grid-gallery__image-link').magnificPopup({
@@ -1314,6 +1331,8 @@ theme.gridGallery = function () {
       tNext: '{{ "products.zoom.next" | t }}'
     }
   });
+  
+  theme.cache.$gridGalleryRte.removeClass('js-hidden');
 }
 
 theme.collectionParallax = function () {
@@ -1417,7 +1436,7 @@ theme.equalHeights = function (elements) {
     if (elements === 'collection') {
       theme.cache.$productGridImages.css('height', 'auto').equalHeights();
     }
-    if (elements === 'gallery') {
+    if (elements === 'gallery' && !{{ settings.crop_grid_gallery }}) {
       $(document).find(theme.cache.galleryGridImages).css('height', 'auto').equalHeights();
     }
 
